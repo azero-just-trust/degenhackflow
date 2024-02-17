@@ -117,7 +117,7 @@ const SideMenu = ({
             <option value="String">String</option>
             <option value="AccountId">AccountId</option>
             <option value="bool">Boolean</option>
-            <option value="u164">u64</option>
+            <option value="u64">u64</option>
             <option value="u128">u128</option>
           </select>
           <input
@@ -140,7 +140,7 @@ const SideMenu = ({
             <option value="String">String</option>
             <option value="AccountId">AccountId</option>
             <option value="bool">Boolean</option>
-            <option value="u164">u64</option>
+            <option value="u64">u64</option>
             <option value="u128">u128</option>
           </select>
           <div className="mb-2">

@@ -21,9 +21,17 @@ export const generateCodeFile = (variables) => {
     variables.forEach((variable) => {
       code += `        ${variable.name}: `;
       if (variable.isMapping) {
-        code += `Mapping<${variable.type}, ${variable.mappingTo}>\n`;
+        if (variable.isVector) {
+            code += `Mapping<${variable.type}, ink_prelude::vec::Vec<${variable.mappingTo}>>,\n`;
+        } else {
+        code += `Mapping<${variable.type}, ${variable.mappingTo}>,\n`;
+        }
       } else {
+        if (variable.isVector) {
+            code += `Vec<${variable.type}>,\n`;
+        } else {
         code += `${variable.type},\n`;
+        }
       }
     });
 
@@ -34,7 +42,6 @@ export const generateCodeFile = (variables) => {
 
     let withoutDefaultValueCount = 0;
     variables.forEach((variable, index) => {
-        console.log(variable.defaultValue)
       if (variable.defaultValue == '' && !variable.isMapping) {
         code += `${variable.name}: ${variable.type}, `;
         withoutDefaultValueCount++;
@@ -49,6 +56,8 @@ export const generateCodeFile = (variables) => {
     variables.forEach(variable => {
     if (variable.isMapping) {
         code += `                ${variable.name}: Mapping::new(),\n`;
+    } else if (variable.isVector) {
+        code += `                ${variable.name}: Vec::new(),\n`;
     } else {
       if (variable.defaultValue != '') {
         if(variable.type == "String") {
@@ -73,11 +82,17 @@ export const generateCodeFile = (variables) => {
           code += `\n        #[ink(message)]\n`;
           code += `        pub fn ${variable.name}(&self`;
           if (variable.isMapping) code += `, id: ${variable.type}`;
-          if (!variable.isMapping) code += `) -> ${variable.type} {\n`;
-          if (variable.isMapping) code += `) -> Option<${variable.mappingTo}> {\n`;
+          code += `) -> `;
+          if (variable.isMapping) code += `Option<`;
+          if (variable.isVector) code += `Vec<`;
+          if (!variable.isMapping) code += `${variable.type}`;
+          if (variable.isMapping) code += `${variable.mappingTo}`;
+          if (variable.isVector) code += `>`;
+          if (variable.isMapping) code += `>`;
+          code += ` {\n`;
           code += `            self.${variable.name}`;
           if (variable.isMapping) code += `.get(&id)`;
-          if (variable.type == "String") code += `.clone()`;
+          if ((variable.type == "String") || (!variable.isMapping && variable.isVector)) code += `.clone()`;
           code += `\n        }\n`;
         }
       });
