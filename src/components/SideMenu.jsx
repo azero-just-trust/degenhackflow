@@ -1,0 +1,166 @@
+import React, { useState } from "react";
+
+const SideMenu = ({
+  apiKey,
+  handleApiKeyChange,
+  noCodeMode,
+  handleToggle,
+  variables,
+  setVariables,
+  newVariable,
+  setNewVariable,
+  editIndex,
+  setEditIndex,
+}) => {
+  //   const [variables, setVariables] = useState([]);
+  //   const [newVariable, setNewVariable] = useState({
+  //     name: "",
+  //     type: "",
+  //     defaultValue: "",
+  //   });
+  //   const [editIndex, setEditIndex] = useState(-1);
+
+  const handleAddVariable = () => {
+    const exists = variables.some(
+      (variable) => variable.name === newVariable.name
+    );
+    if (exists) {
+      alert("Variable with the same name already exists!");
+      return;
+    }
+
+    if (newVariable.name && newVariable.type && newVariable.defaultValue) {
+      // Add new variable or update existing one if editing
+      if (editIndex !== -1) {
+        const updatedVariables = [...variables];
+        updatedVariables[editIndex] = newVariable;
+        setVariables(updatedVariables);
+        setEditIndex(-1);
+      } else {
+        setVariables([...variables, newVariable]);
+      }
+      setNewVariable({ name: "", type: "", defaultValue: "" });
+    }
+  };
+
+  const handleEditVariable = (index) => {
+    setNewVariable(variables[index]);
+    setEditIndex(index);
+  };
+
+  const handleRemoveVariable = (index) => {
+    const updatedVariables = [...variables];
+    updatedVariables.splice(index, 1);
+    setVariables(updatedVariables);
+  };
+
+  return (
+    <div className="h-screen flex flex-col items-center justify-start py-8 w-80 bg-[#2d2d2d] fixed left-0 z-40 border-r border-teal-400">
+      <div className="text-gray-200 text-lg font-bold fixed top-2 left-2 px-4 py-2 rounded-lg border border-teal-400">
+        <span className="text-teal-400">Azero</span>
+        <span className="text-purple-500">Ink</span>
+        <span className="text-teal-400">Box</span>
+      </div>
+      <div className="mt-16 mb-8">
+        <label className="flex items-center cursor-pointer">
+          <div className="relative ">
+            <input
+              type="checkbox"
+              className="hidden"
+              checked={noCodeMode}
+              onChange={handleToggle}
+            />
+            <div className="mx-auto w-full flex flex-row h-16 w-fit absolute">
+              <div className="w-10 h-4 bg-teal-400 rounded-full shadow-inner fixed mt-1"></div>
+              <div
+                className={`absolute w-6 h-6 bg-white rounded-full shadow border border-gray-400 mb-4 ${
+                  noCodeMode ? "transform translate-x-full bg-green-400" : ""
+                }`}
+              ></div>
+            </div>
+          </div>
+          <div className="ml-3 mb-8 text-gray-200 font-medium">
+            {/* Toggle State: {noCodeMode ? "ON" : "OFF"} */}
+            No-Code Mode
+          </div>
+        </label>
+      </div>
+      <div className="ml-3 text-gray-200 font-medium">Contract</div>
+      <input
+        type="text"
+        placeholder="Contract Name"
+        className="w-full border border-[#343434] rounded-md px-3 py-2 mb-2 bg-[#2d2d2d]"
+        value={apiKey}
+        onChange={handleApiKeyChange}
+      />
+
+      <div className="h-screen w-full py-4 px-4 rounded-md">
+        <div className="mb-4">
+          <h2 className="ml-3 font-medium mb-2">Add New Variable</h2>
+          <input
+            type="text"
+            placeholder="Variable Name"
+            className="w-full border border-[#343434] rounded-md px-3 py-2 mb-2 bg-[#2d2d2d]"
+            value={newVariable.name}
+            onChange={(e) =>
+              setNewVariable({ ...newVariable, name: e.target.value })
+            }
+          />
+          <select
+            className="w-full border border-[#343434] rounded-md px-3 py-2 mb-2 bg-[#2d2d2d]"
+            value={newVariable.type}
+            onChange={(e) =>
+              setNewVariable({ ...newVariable, type: e.target.value })
+            }
+          >
+            <option value="">Select Type</option>
+            <option value="string">String</option>
+            <option value="number">Number</option>
+          </select>
+          <input
+            type="text"
+            placeholder="Default Value"
+            className="w-full border border-[#343434] rounded-md px-3 py-2 mb-2 bg-[#2d2d2d]"
+            value={newVariable.defaultValue}
+            onChange={(e) =>
+              setNewVariable({ ...newVariable, defaultValue: e.target.value })
+            }
+          />
+          <button
+            className="bg-teal-400 hover:bg-teal-600 text-white font-medium py-2 px-4 rounded-md"
+            onClick={handleAddVariable}
+          >
+            Add Variable
+          </button>
+        </div>
+
+        <div>
+          <h2 className="font-medium mb-2">Variable List</h2>
+          {variables.map((variable, index) => (
+            <div key={index} className="flex justify-between items-center mb-2">
+              <div className="bg-teal-400 hover:bg-teal-600 rounded-md px-2 py-1 text-gray-800 font-semibold text-sm">
+                {variable.name}: {variable.defaultValue}
+              </div>
+              <div>
+                <button
+                  className="text-teal-400 font-medium mr-2"
+                  onClick={() => handleEditVariable(index)}
+                >
+                  Edit
+                </button>
+                <button
+                  className="text-purple-300 font-extrabold ml-2"
+                  onClick={() => handleRemoveVariable(index)}
+                >
+                  X
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default SideMenu;
