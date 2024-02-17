@@ -29,7 +29,7 @@ const SideMenu = ({
       return;
     }
 
-    if (newVariable.name && newVariable.type && newVariable.defaultValue) {
+    if (newVariable.name && newVariable.type) {// && newVariable.defaultValue) {
       // Add new variable or update existing one if editing
       if (editIndex !== -1) {
         const updatedVariables = [...variables];
@@ -55,7 +55,7 @@ const SideMenu = ({
   };
 
   return (
-    <div className="h-screen flex flex-col items-center justify-start py-8 w-80 bg-[#2d2d2d] fixed left-0 z-40 border-r border-teal-400">
+    <div className="min-h-screen flex flex-col items-center justify-start py-8 w-80 bg-[#2d2d2d] absolute left-0 z-40 border-r border-teal-400 px-4 h-screen overflow-y-scroll">
       <div className="text-gray-200 text-lg font-bold fixed top-2 left-2 px-4 py-2 rounded-lg border border-teal-400">
         <span className="text-teal-400">Azero</span>
         <span className="text-purple-500">Ink</span>
@@ -89,12 +89,12 @@ const SideMenu = ({
       <input
         type="text"
         placeholder="Contract Name"
-        className="w-full border border-[#343434] rounded-md px-3 py-2 mb-2 bg-[#2d2d2d]"
+        className="w-full border border-[#343434] rounded-md px-3 py-2 mb-2 bg-[#2d2d2d] "
         value={apiKey}
         onChange={handleApiKeyChange}
       />
 
-      <div className="h-screen w-full py-4 px-4 rounded-md">
+      <div className="h-screen w-full py-4 rounded-md">
         <div className="mb-4">
           <h2 className="ml-3 font-medium mb-2">Add New Variable</h2>
           <input
@@ -113,9 +113,12 @@ const SideMenu = ({
               setNewVariable({ ...newVariable, type: e.target.value })
             }
           >
-            <option value="">Select Type</option>
-            <option value="string">String</option>
-            <option value="number">Number</option>
+            <option value="">Variable Type</option>
+            <option value="String">String</option>
+            <option value="AccountId">AccountId</option>
+            <option value="bool">Boolean</option>
+            <option value="u164">u64</option>
+            <option value="u128">u128</option>
           </select>
           <input
             type="text"
@@ -126,6 +129,95 @@ const SideMenu = ({
               setNewVariable({ ...newVariable, defaultValue: e.target.value })
             }
           />
+          <select
+            className="w-full border border-[#343434] rounded-md px-3 py-2 mb-2 bg-[#2d2d2d]"
+            value={newVariable.mappingTo}
+            onChange={(e) =>
+              setNewVariable({ ...newVariable, mappingTo: e.target.value })
+            }
+          >
+            <option value="">Mapping To Type</option>
+            <option value="String">String</option>
+            <option value="AccountId">AccountId</option>
+            <option value="bool">Boolean</option>
+            <option value="u164">u64</option>
+            <option value="u128">u128</option>
+          </select>
+          <div className="mb-2">
+            <label className="flex items-center cursor-pointer">
+              <div className="relative ">
+                <input
+                  type="checkbox"
+                  className="hidden"
+                  checked={newVariable.getter}
+                  onChange={(e) =>
+                    setNewVariable({ ...newVariable, getter: !newVariable.getter })
+                  }
+                />
+                <div className="mx-auto w-full flex flex-row h-16 w-fit absolute">
+                  <div className="w-10 h-4 bg-teal-400 rounded-full shadow-inner fixed mt-1"></div>
+                  <div
+                    className={`absolute w-6 h-6 bg-white rounded-full shadow border border-gray-400 mb-4 ${
+                      newVariable.getter ? "transform translate-x-full bg-green-400" : ""
+                    }`}
+                  ></div>
+                </div>
+              </div>
+              <div className="ml-3 mb-8 text-gray-200 font-medium">
+                Add Getter
+              </div>
+            </label>
+      </div>
+      <div className="mb-2">
+            <label className="flex items-center cursor-pointer">
+              <div className="relative ">
+                <input
+                  type="checkbox"
+                  className="hidden"
+                  checked={newVariable.isVector}
+                  onChange={(e) =>
+                    setNewVariable({ ...newVariable, isVector: !newVariable.isVector })
+                  }
+                />
+                <div className="mx-auto w-full flex flex-row h-16 w-fit absolute">
+                  <div className="w-10 h-4 bg-teal-400 rounded-full shadow-inner fixed mt-1"></div>
+                  <div
+                    className={`absolute w-6 h-6 bg-white rounded-full shadow border border-gray-400 mb-4 ${
+                      newVariable.isVector ? "transform translate-x-full bg-green-400" : ""
+                    }`}
+                  ></div>
+                </div>
+              </div>
+              <div className="ml-3 mb-8 text-gray-200 font-medium">
+                Vector
+              </div>
+            </label>
+      </div>
+      <div className="mb-2">
+            <label className="flex items-center cursor-pointer">
+              <div className="relative ">
+                <input
+                  type="checkbox"
+                  className="hidden"
+                  checked={newVariable.isMapping}
+                  onChange={(e) =>
+                    setNewVariable({ ...newVariable, isMapping: !newVariable.isMapping })
+                  }
+                />
+                <div className="mx-auto w-full flex flex-row h-16 w-fit absolute">
+                  <div className="w-10 h-4 bg-teal-400 rounded-full shadow-inner fixed mt-1"></div>
+                  <div
+                    className={`absolute w-6 h-6 bg-white rounded-full shadow border border-gray-400 mb-4 ${
+                      newVariable.isMapping ? "transform translate-x-full bg-green-400" : ""
+                    }`}
+                  ></div>
+                </div>
+              </div>
+              <div className="ml-3 mb-8 text-gray-200 font-medium">
+                Mapping
+              </div>
+            </label>
+      </div>
           <button
             className="bg-teal-400 hover:bg-teal-600 text-white font-medium py-2 px-4 rounded-md"
             onClick={handleAddVariable}

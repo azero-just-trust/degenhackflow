@@ -13,7 +13,7 @@ import ReactFlow, {
   MiniMap,
 } from "reactflow";
 import Select from "react-select";
-
+import {generateCodeFile} from "./utils.js"
 import "reactflow/dist/style.css";
 
 const selectOptions = [
@@ -60,6 +60,10 @@ function App() {
     name: "",
     type: "",
     defaultValue: "",
+    getter: false,
+    isVector: false,
+    isMapping: false,
+    mappingTo: ""
   });
   const [editIndex, setEditIndex] = useState(-1);
   const [cargoValue, setCargoValue] = useState(`# Cargo.toml
@@ -195,40 +199,11 @@ e2e-tests = []
     // setTextValue(JSON.stringify(variables));
     // setTextValue(newVariable);
     // setTextValue(JSON.stringify(generateCodeFile()));
-    setTextValue(generateCodeFile());
-  };
-
-  const generateCodeFile = () => {
-    let code = `#![cfg_attr(not(feature = "std"), no_std, no_main)]\n\n`;
-    code += `#[ink::contract]\n`;
-    code += `mod test {\n\n`;
-    code += `    #[ink(storage)]\n`;
-    code += `    pub struct Test {\n`;
-
-    variables.forEach((variable) => {
-      code += `        ${variable.name}: ${variable.type},\n`;
-    });
-
-    code += `    }\n\n`;
-    code += `    impl Test {\n`;
-
-    variables.forEach((variable) => {
-      code += `        #[ink(constructor)]\n`;
-      code += `        pub fn new(${variable.name}: ${variable.type}) -> Self {\n`;
-      code += `            Self { ${variable.name} }\n`;
-      code += `        }\n\n`;
-    });
-
-    code += `        // Add other methods as needed\n`;
-    code += `    }\n`;
-    code += `}\n`;
-
-    console.log(code);
-    return code;
+    setTextValue(generateCodeFile(variables));
   };
 
   return (
-    <div className="w-screen bg-[#151414] text-gray-200">
+    <div className="w-screen bg-[#2d2d2d] text-gray-200 flex flex-row w-view h-max">
       <SideMenu
         apiKey={apiKey}
         handleApiKeyChange={handleApiKeyChange}
@@ -241,8 +216,8 @@ e2e-tests = []
         editIndex={editIndex}
         setEditIndex={setEditIndex}
       />
-      <div className="flex flex-row gap-y-40 overflow-hidden justify-start items-end self-end text-gray-200 ml-80">
-        {!noCodeMode ? (
+      <div className="flex flex-row gap-y-40 overflow-hidden justify-start items-end self-end text-gray-200 ml-80 mx-4 w-4/5 bg-[#2d2d2d] h-full">
+      {!noCodeMode ? (
           <div className="w-full h-screen flex flex-row">
             <div className="w-1/2 h-screen z-50 border-r border-[#343434]">
               <div className="w-full h-8 bg-[#2d2d2d]/60 border-[#343434] border-b-2 text-gray-400 font-medium text-center z-10">
