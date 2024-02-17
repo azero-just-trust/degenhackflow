@@ -12,7 +12,13 @@ export const generateCodeFile = (variables) => {
     let code = `#![cfg_attr(not(feature = "std"), no_std, no_main)]\n\n`;
     code += `#[ink::contract]\n`;
     code += `mod test {\n`;
-    if (vectorCount != 0 || mappingCount != 0) code += `use ink::prelude::{string::String, vec::Vec};\n`;
+    if (vectorCount != 0 || stringCount != 0) {
+        code += `use ink::prelude::{`;
+        if (stringCount != 0) code += `string::String`;
+        if (vectorCount != 0 && stringCount != 0) code += `, `; 
+        if (vectorCount != 0) code += `vec::Vec}`;
+        code += `;\n`;
+    }
     if (mappingCount != 0) code += `use ink::storage::Mapping;\n`;
     code+= `\n`;
     code += `    #[ink(storage)]\n`;
@@ -42,7 +48,7 @@ export const generateCodeFile = (variables) => {
 
     let withoutDefaultValueCount = 0;
     variables.forEach((variable, index) => {
-      if (variable.defaultValue == '' && !variable.isMapping) {
+      if (variable.defaultValue == '' && !variable.isMapping && !variable.isVector) {
         code += `${variable.name}: ${variable.type}, `;
         withoutDefaultValueCount++;
       }
