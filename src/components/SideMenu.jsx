@@ -29,7 +29,7 @@ const SideMenu = ({
       return;
     }
 
-    if (newVariable.name && newVariable.type) {// && newVariable.defaultValue) {
+    if (newVariable.name && newVariable.type && (!newVariable.isMapping || (newVariable.isMapping && newVariable.mappingTo))) {// && newVariable.defaultValue) {
       // Add new variable or update existing one if editing
       if (editIndex !== -1) {
         const updatedVariables = [...variables];
@@ -136,7 +136,7 @@ const SideMenu = ({
               setNewVariable({ ...newVariable, mappingTo: e.target.value })
             }
           >
-            <option value="">Mapping To Type</option>
+            <option value="">Mapping To Type (if mapping enabled)</option>
             <option value="String">String</option>
             <option value="AccountId">AccountId</option>
             <option value="bool">Boolean</option>
@@ -219,7 +219,7 @@ const SideMenu = ({
             </label>
       </div>
           <button
-            className="bg-teal-400 hover:bg-teal-600 text-white font-medium py-2 px-4 rounded-md"
+            className="bg-teal-600 hover:bg-teal-700 text-white font-medium py-2 px-4 rounded-md"
             onClick={handleAddVariable}
           >
             Add Variable
