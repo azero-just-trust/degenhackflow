@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import "./index.css";
 import MonacoEditor from "react-monaco-editor";
 import "./userWorker";
@@ -11,6 +11,10 @@ import ReactFlow, {
   Controls,
   Background,
   MiniMap,
+  removeElements,
+  getIncomers,
+  getOutgoers,
+  getConnectedEdges,
 } from "reactflow";
 import Select from "react-select";
 import {generateCodeFile} from "./utils.js"
@@ -49,12 +53,17 @@ const initEdges = [
   },
 ];
 
+interface Function {
+  name: string;
+  parameters: string[];
+}
+
 function App() {
   const [apiKey, setApiKey] = useState("");
   const [textValue, setTextValue] = useState(``);
   const [noCodeMode, setNoCodeMode] = useState(true);
-  const [nodes, , onNodesChange] = useNodesState(initNodes);
-  const [edges, , onEdgesChange] = useEdgesState(initEdges);
+  const [nodes, setNodes, onNodesChange] = useNodesState(initNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initEdges);
   const [variables, setVariables] = useState([]);
   const [newVariable, setNewVariable] = useState({
     name: "",
@@ -65,6 +74,9 @@ function App() {
     isMapping: false,
     mappingTo: ""
   });
+  const [functions, setFunctions] = useState<Function[]>([]);
+  const [newFunction, setNewFunction] = useState<Function>({ name: '', parameters: [], nodes: [], edges: [] });
+  const [selectedFunction, setSelectedFunction] = useState<boolean>(false);
   const [editIndex, setEditIndex] = useState(-1);
   const [cargoValue, setCargoValue] = useState(`# Cargo.toml
 
@@ -195,13 +207,75 @@ e2e-tests = []
     wordWrap: true,
   };
 
+  const addFunction = () => {
+    if (newFunction.name != "" && newFunction.name != " " && newFunction.name) {
+      let index = functions.length;
+      let tempNewFunction = newFunction;
+      tempNewFunction.nodes.push({
+        id: `${functions.length.toString()}-${tempNewFunction.nodes.length.toString()}`,
+        type: 'input',
+        data: { label: tempNewFunction.name.toString() },
+        position: { x: 200, y: 0 },
+      })
+      tempNewFunction.nodes.push({
+        id: `${functions.length.toString()}-${tempNewFunction.nodes.length.toString()}`,
+        data: { label: `Example Step` },
+        position: { x: 150, y: 100 },
+      })
+      tempNewFunction.nodes.push({
+        id: `${functions.length.toString()}-${tempNewFunction.nodes.length.toString()}`,
+        type: 'output',
+        data: { label: `return` },
+        position: { x: 250, y: 200 },
+      })
+      tempNewFunction.edges.push({ id: 'e0-1', source: `${index}-0`, target: `${index}-1`, animated: true })
+      tempNewFunction.edges.push({ id: 'e0-2', source: `${index}-1`, target: `${index}-2`, animated: true })
+      setFunctions([...functions, newFunction]);
+      setNewFunction({ name: '', parameters: [], nodes: [], edges: [] });
+      setSelectedFunction(index)
+    }
+  };
+
+  const removeFunction = (index: number) => {
+    const updatedFunctions = [...functions];
+    updatedFunctions.splice(index, 1);
+    setFunctions(updatedFunctions);
+  };
+
   const handleToggle = () => {
     setNoCodeMode(!noCodeMode);
-    // setTextValue(JSON.stringify(variables));
-    // setTextValue(newVariable);
-    // setTextValue(JSON.stringify(generateCodeFile()));
     setTextValue(generateCodeFile(variables));
   };
+
+  useEffect(() => {
+    (async () => {
+      console.log(functions[selectedFunction].nodes)
+      setNodes(functions[selectedFunction].nodes)
+      setEdges(functions[selectedFunction].edges)
+    })();
+  }, [selectedFunction]);
+
+  const onConnect = useCallback((params) => setEdges(addEdge(params, edges)), [edges]);
+  const onNodesDelete = useCallback(
+    (deleted) => {
+      setEdges(
+        deleted.reduce((acc, node) => {
+          const incomers = getIncomers(node, nodes, edges);
+          const outgoers = getOutgoers(node, nodes, edges);
+          const connectedEdges = getConnectedEdges([node], edges);
+
+          const remainingEdges = acc.filter((edge) => !connectedEdges.includes(edge));
+
+          const createdEdges = incomers.flatMap(({ id: source }) =>
+            outgoers.map(({ id: target }) => ({ id: `${source}->${target}`, source, target }))
+          );
+
+          return [...remainingEdges, ...createdEdges];
+        }, edges)
+      );
+    },
+    [nodes, edges]
+  );
 
   return (
     <div className="w-screen bg-[#2d2d2d] text-gray-200 flex flex-row w-view h-max">
@@ -216,6 +290,13 @@ e2e-tests = []
         setNewVariable={setNewVariable}
         editIndex={editIndex}
         setEditIndex={setEditIndex}
+        addFunction={addFunction}
+        removeFunction={removeFunction}
+        functions={functions}
+        newFunction={newFunction}
+        setNewFunction={setNewFunction}
+        selectedFunction={selectedFunction}
+        setSelectedFunction={setSelectedFunction}
       />
       <div className="flex flex-row gap-y-40 overflow-hidden justify-start items-end self-end text-gray-200 ml-80 mx-4 w-4/5 bg-[#2d2d2d] h-full">
       {!noCodeMode ? (
@@ -249,28 +330,14 @@ e2e-tests = []
           </div>
         ) : (
           <div style={{ width: "100vw", height: "100vh" }} className="flex">
-            {/* <h1 className="text-3xl font-bold underline">Hello world!</h1> */}
-            {/* <div
-              style={{ width: "20vw", height: "100vh" }}
-              className="bg-gray-200 border-r-2 border-black"
-            >
-              <h3>Select instruction:</h3>
-              <Select
-                value={selectedOption}
-                onChange={handleChange}
-                options={selectOptions}
-              />
-              <div>
-                Selected option:{" "}
-                {selectedOption ? selectedOption.label : "None"}
-              </div>
-            </div> */}
             <div style={{ width: "90vw", height: "100vh" }}>
               <ReactFlow
                 nodes={nodes}
                 onNodesChange={onNodesChange}
                 edges={edges}
                 onEdgesChange={onEdgesChange}
+                onNodesDelete={onNodesDelete}
+                onConnect={onConnect}
                 fitView
               >
                 <Background />

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { generateCodeFile } from "../utils";
 
 const SideMenu = ({
   apiKey,
@@ -11,6 +12,13 @@ const SideMenu = ({
   setNewVariable,
   editIndex,
   setEditIndex,
+  addFunction,
+  removeFunction,
+  functions,
+  newFunction,
+  setNewFunction,
+  selectedFunction,
+  setSelectedFunction
 }) => {
   //   const [variables, setVariables] = useState([]);
   //   const [newVariable, setNewVariable] = useState({
@@ -56,7 +64,7 @@ const SideMenu = ({
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-start py-8 w-80 bg-[#2d2d2d] absolute left-0 z-40 border-r border-teal-400 px-4 h-screen overflow-y-scroll">
-      <div className="text-gray-200 text-lg font-bold fixed top-2 left-2 px-4 py-2 rounded-lg border border-teal-400">
+      <div className="text-gray-200 text-lg font-bold absolute top-2 left-2 px-4 py-2 rounded-lg border border-teal-400">
         <span className="text-teal-400">Azero</span>
         <span className="text-purple-500">Ink</span>
         <span className="text-teal-400">Box</span>
@@ -71,7 +79,7 @@ const SideMenu = ({
               onChange={handleToggle}
             />
             <div className="mx-auto w-full flex flex-row h-16 w-fit absolute">
-              <div className="w-10 h-4 bg-teal-400 rounded-full shadow-inner fixed mt-1"></div>
+              {/* <div className="w-10 h-4 bg-teal-400 rounded-full shadow-inner fixed mt-1"></div> */}
               <div
                 className={`absolute w-6 h-6 bg-white rounded-full shadow border border-gray-400 mb-4 ${
                   noCodeMode ? "transform translate-x-full bg-green-400" : ""
@@ -155,7 +163,7 @@ const SideMenu = ({
                   }
                 />
                 <div className="mx-auto w-full flex flex-row h-16 w-fit absolute">
-                  <div className="w-10 h-4 bg-teal-400 rounded-full shadow-inner fixed mt-1"></div>
+                  {/* <div className="w-10 h-4 bg-teal-400 rounded-full shadow-inner fixed mt-1"></div> */}
                   <div
                     className={`absolute w-6 h-6 bg-white rounded-full shadow border border-gray-400 mb-4 ${
                       newVariable.getter ? "transform translate-x-full bg-green-400" : ""
@@ -180,7 +188,7 @@ const SideMenu = ({
                   }
                 />
                 <div className="mx-auto w-full flex flex-row h-16 w-fit absolute">
-                  <div className="w-10 h-4 bg-teal-400 rounded-full shadow-inner fixed mt-1"></div>
+                  {/* <div className="w-10 h-4 bg-teal-400 rounded-full shadow-inner fixed mt-1"></div> */}
                   <div
                     className={`absolute w-6 h-6 bg-white rounded-full shadow border border-gray-400 mb-4 ${
                       newVariable.isVector ? "transform translate-x-full bg-green-400" : ""
@@ -205,7 +213,7 @@ const SideMenu = ({
                   }
                 />
                 <div className="mx-auto w-full flex flex-row h-16 w-fit absolute">
-                  <div className="w-10 h-4 bg-teal-400 rounded-full shadow-inner fixed mt-1"></div>
+                  {/* <div className="w-10 h-4 bg-teal-400 rounded-full shadow-inner fixed mt-1"></div> */}
                   <div
                     className={`absolute w-6 h-6 bg-white rounded-full shadow border border-gray-400 mb-4 ${
                       newVariable.isMapping ? "transform translate-x-full bg-green-400" : ""
@@ -250,7 +258,37 @@ const SideMenu = ({
             </div>
           ))}
         </div>
+
+        <div className="mb-4">
+          <h2 className="font-medium mb-2">Custom Functions</h2>
+          </div>
       </div>
+
+      <div>
+        <h2>Add New Function</h2>
+        <input
+          className="w-full border border-[#343434] rounded-md px-3 py-2 mb-2 bg-[#2d2d2d]"
+          type="text"
+          placeholder="Function Name"
+          value={newFunction.name}
+          onChange={(e) => { setNewFunction({ ...newFunction, name: e.target.value })}}
+        />
+        <button className="bg-teal-600 hover:bg-teal-700 text-white font-medium py-2 px-4 rounded-md" onClick={addFunction}>Add Function</button>
+      </div>
+
+      <div>
+        <h2>Function List</h2>
+        {functions.map((func, index) => (
+          <div key={index}>
+            <span>{func.name}</span>
+            <button onClick={() => setSelectedFunction(index)}>Open</button>
+            <button onClick={() => removeFunction(index)}>Delete</button>
+          </div>
+        ))}
+      </div>
+
+      <button onClick={generateCodeFile}>Generate Code File</button>
+      {selectedFunction}
     </div>
   );
 };
