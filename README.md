@@ -1,27 +1,4 @@
-# Vite React Flow Template
+# Azero Ink Box
 
-This template creates a very basic [React Flow](https://reactflow.dev) app with [Vite](https://vite.dev).
+[Devpost page]([https://reactflow.dev](https://devpost.com/software/azeroinkbox)https://devpost.com/software/azeroinkbox).
 
-## Get it!
-
-```sh
-npx degit xyflow/vite-react-flow-template app-name
-```
-
-## Installation
-
-```sh
-npm run install
-```
-
-## Development
-
-```sh
-npm run dev
-```
-
-## Build
-
-```sh
-npm run build
-```
