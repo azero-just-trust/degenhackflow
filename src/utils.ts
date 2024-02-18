@@ -1,4 +1,5 @@
-export const generateCodeFile = (variables) => {
+// @ts-nocheck
+export const generateCodeFile = (variables, functions) => {
     let stringCount = 0;
     let mappingCount = 0;
     let vectorCount = 0;
@@ -102,6 +103,23 @@ export const generateCodeFile = (variables) => {
           code += `\n        }\n`;
         }
       });
+
+    // Iterate over the functions array
+    functions.forEach((func) => {
+      console.log(func.nodes.length)
+      // Generate code for the function
+      code += `\n        #[ink(message)]\n`;
+      code += `        pub fn ${func.name}(&self`;
+      // Add function parameters, if any
+      func.nodes.forEach((param) => {
+          if (param.type == "textUpdater" && param.data.variable_type != "" && param.data.variable_type) code += `, ${param.data.label}: ${param.data.variable_type}`;
+      });
+      // Close the function signature
+      code += `) {\n`;
+      // Close the function body
+      code += `            // Function body goes here\n`;
+      code += `        }\n`;
+  });
 
     code += `    }\n`;
     code += `}\n`;

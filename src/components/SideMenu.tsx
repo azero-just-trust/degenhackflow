@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState } from "react";
 import { generateCodeFile } from "../utils";
 
@@ -18,16 +19,9 @@ const SideMenu = ({
   newFunction,
   setNewFunction,
   selectedFunction,
-  setSelectedFunction
+  setSelectedFunction,
+  updatePosition
 }) => {
-  //   const [variables, setVariables] = useState([]);
-  //   const [newVariable, setNewVariable] = useState({
-  //     name: "",
-  //     type: "",
-  //     defaultValue: "",
-  //   });
-  //   const [editIndex, setEditIndex] = useState(-1);
-
   const handleAddVariable = () => {
     const exists = variables.some(
       (variable) => variable.name === newVariable.name
@@ -37,8 +31,7 @@ const SideMenu = ({
       return;
     }
 
-    if (newVariable.name && newVariable.type && (!newVariable.isMapping || (newVariable.isMapping && newVariable.mappingTo))) {// && newVariable.defaultValue) {
-      // Add new variable or update existing one if editing
+    if (newVariable.name && newVariable.type && (!newVariable.isMapping || (newVariable.isMapping && newVariable.mappingTo))) {
       if (editIndex !== -1) {
         const updatedVariables = [...variables];
         updatedVariables[editIndex] = newVariable;
@@ -244,13 +237,19 @@ const SideMenu = ({
               <div>
                 <button
                   className="text-teal-400 font-medium mr-2"
-                  onClick={() => handleEditVariable(index)}
+                  onClick={async () => {
+                    await updatePosition();
+                    handleEditVariable(index)
+                  }}
                 >
                   Edit
                 </button>
                 <button
                   className="text-purple-300 font-extrabold ml-2"
-                  onClick={() => handleRemoveVariable(index)}
+                  onClick={async () => {
+                    await updatePosition();
+                    handleRemoveVariable(index)
+                  }}
                 >
                   X
                 </button>
@@ -273,7 +272,12 @@ const SideMenu = ({
           value={newFunction.name}
           onChange={(e) => { setNewFunction({ ...newFunction, name: e.target.value })}}
         />
-        <button className="bg-teal-600 hover:bg-teal-700 text-white font-medium py-2 px-4 rounded-md" onClick={addFunction}>Add Function</button>
+        <button className="bg-teal-600 hover:bg-teal-700 text-white font-medium py-2 px-4 rounded-md" onClick={async() => {
+          await updatePosition();
+          addFunction()
+        }}>
+          Add Function
+        </button>
       </div>
 
       <div>
@@ -281,14 +285,21 @@ const SideMenu = ({
         {functions.map((func, index) => (
           <div key={index}>
             <span>{func.name}</span>
-            <button onClick={() => setSelectedFunction(index)}>Open</button>
+            <button onClick={async () => {
+              await updatePosition();
+              setSelectedFunction(index)
+            }}>
+              Open
+            </button>
             <button onClick={() => removeFunction(index)}>Delete</button>
           </div>
         ))}
       </div>
 
-      <button onClick={generateCodeFile}>Generate Code File</button>
-      {selectedFunction}
+      <div className="mt-4">
+      <button className="bg-teal-600 hover:bg-teal-700 text-white font-medium py-2 px-4 rounded-md mr-2" onClick={addFunction}>Compile WASM</button>
+      <button className="bg-teal-600 hover:bg-teal-700 text-white font-medium py-2 px-4 rounded-md" onClick={addFunction}>Download</button>
+      </div>
     </div>
   );
 };

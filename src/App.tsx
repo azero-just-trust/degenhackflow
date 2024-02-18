@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import "./index.css";
 import MonacoEditor from "react-monaco-editor";
 import "./userWorker";
-import SideMenu from "./components/SideMenu";
+import SideMenu from "./components/SideMenu.tsx";
 import ReactFlow, {
   useNodesState,
   useEdgesState,
@@ -17,8 +17,10 @@ import ReactFlow, {
   getConnectedEdges,
 } from "reactflow";
 import Select from "react-select";
-import {generateCodeFile} from "./utils.js"
+import {generateCodeFile} from "./utils.ts"
 import "reactflow/dist/style.css";
+import TextUpdaterNode from './components/textUpdaterNode.tsx';
+import IfStatement from "./components/ifStatement.tsx";
 
 const selectOptions = [
   { value: "new_function", label: "new function" },
@@ -53,6 +55,9 @@ const initEdges = [
   },
 ];
 
+const nodeTypes = { textUpdater: TextUpdaterNode, ifStatement: IfStatement };
+
+// Ink Smart Contract Function struct
 interface Function {
   name: string;
   parameters: string[];
@@ -207,6 +212,10 @@ e2e-tests = []
     wordWrap: true,
   };
 
+  const updateLabel = (i, e) => {
+    console.log(i)
+  }
+
   const addFunction = () => {
     if (newFunction.name != "" && newFunction.name != " " && newFunction.name) {
       let index = functions.length;
@@ -219,8 +228,11 @@ e2e-tests = []
       })
       tempNewFunction.nodes.push({
         id: `${functions.length.toString()}-${tempNewFunction.nodes.length.toString()}`,
-        data: { label: `Example Step` },
+        type: `textUpdater`,
+        // data: { label: `Example Step` },
+        data: { label: 123, variable_type: "" },
         position: { x: 150, y: 100 },
+        updateLabel: updateLabel,
       })
       tempNewFunction.nodes.push({
         id: `${functions.length.toString()}-${tempNewFunction.nodes.length.toString()}`,
@@ -244,7 +256,7 @@ e2e-tests = []
 
   const handleToggle = () => {
     setNoCodeMode(!noCodeMode);
-    setTextValue(generateCodeFile(variables));
+    setTextValue(generateCodeFile(variables, functions));
   };
 
   useEffect(() => {
@@ -277,6 +289,13 @@ e2e-tests = []
     [nodes, edges]
   );
 
+  const updatePosition = async () => {
+    let updatedFunctions = functions;
+    updatedFunctions[selectedFunction].nodes = nodes;
+    setFunctions([...updatedFunctions]);
+    return;
+  }
+
   return (
     <div className="w-screen bg-[#2d2d2d] text-gray-200 flex flex-row w-view h-max">
       <SideMenu
@@ -297,6 +316,7 @@ e2e-tests = []
         setNewFunction={setNewFunction}
         selectedFunction={selectedFunction}
         setSelectedFunction={setSelectedFunction}
+        updatePosition={updatePosition}
       />
       <div className="flex flex-row gap-y-40 overflow-hidden justify-start items-end self-end text-gray-200 ml-80 mx-4 w-4/5 bg-[#2d2d2d] h-full">
       {!noCodeMode ? (
@@ -330,6 +350,81 @@ e2e-tests = []
           </div>
         ) : (
           <div style={{ width: "100vw", height: "100vh" }} className="flex">
+            <div 
+            className="w-fit h-fit bg-teal-400 rounded-lg shadow-inner absolute right-44 mr-2 top-4 z-10 cursor-pointer px-2 py-1 font-bold text-black" 
+            onClick={async (e) => {
+              await updatePosition();
+              const newNode = { 
+                id: `${functions.length.toString()}-${functions[selectedFunction].nodes.length.toString()}`,
+                type: `textUpdater`,
+                data: { label: ``, variable_type: `` },
+                position: { x: 150, y: 100 },
+              };
+              setNodes([...functions[selectedFunction].nodes, newNode]);
+              let tempFunctions = functions;
+              let tempFunction = { 
+                ...functions[selectedFunction],
+                nodes: [
+                  ...functions[selectedFunction].nodes, 
+                  newNode
+                ]
+              };
+              tempFunctions[selectedFunction] = tempFunction;
+              setFunctions([...tempFunctions]);
+            }}
+          >
+            State
+          </div>
+            <div 
+            className="w-fit h-fit bg-teal-400 rounded-lg shadow-inner absolute right-36 top-4 z-10 cursor-pointer px-2 py-1 font-bold text-black" 
+            onClick={async (e) => {
+              await updatePosition();
+              const newNode = { 
+                id: `${functions.length.toString()}-${functions[selectedFunction].nodes.length.toString()}`,
+                type: `ifStatement`,
+                data: { label: ``, variable_type: `` },
+                position: { x: 150, y: 100 },
+              };
+              setNodes([...functions[selectedFunction].nodes, newNode]);
+              let tempFunctions = functions;
+              let tempFunction = { 
+                ...functions[selectedFunction],
+                nodes: [
+                  ...functions[selectedFunction].nodes, 
+                  newNode
+                ]
+              };
+              tempFunctions[selectedFunction] = tempFunction;
+              setFunctions([...tempFunctions]);
+            }}
+          >
+            IF
+          </div>
+            <div 
+            className="w-fit h-fit bg-teal-400 rounded-lg shadow-inner absolute right-8 top-4 z-10 cursor-pointer px-2 py-1 font-bold text-black" 
+            onClick={async (e) => {
+              await updatePosition();
+              const newNode = { 
+                id: `${functions.length.toString()}-${functions[selectedFunction].nodes.length.toString()}`,
+                type: `textUpdater`,
+                data: { label: ``, variable_type: `` },
+                position: { x: 150, y: 100 },
+              };
+              setNodes([...functions[selectedFunction].nodes, newNode]);
+              let tempFunctions = functions;
+              let tempFunction = { 
+                ...functions[selectedFunction],
+                nodes: [
+                  ...functions[selectedFunction].nodes, 
+                  newNode
+                ]
+              };
+              tempFunctions[selectedFunction] = tempFunction;
+              setFunctions([...tempFunctions]);
+            }}
+          >
+            Parameters
+          </div>
             <div style={{ width: "90vw", height: "100vh" }}>
               <ReactFlow
                 nodes={nodes}
@@ -338,6 +433,7 @@ e2e-tests = []
                 onEdgesChange={onEdgesChange}
                 onNodesDelete={onNodesDelete}
                 onConnect={onConnect}
+                nodeTypes={nodeTypes}
                 fitView
               >
                 <Background />
