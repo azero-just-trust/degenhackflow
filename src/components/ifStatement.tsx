@@ -16,7 +16,7 @@ function IfStatement({ id, data, isConnectable, updateLabel }) {
     <div className="text-updater-node">
       <Handle type="target" position={Position.Top} isConnectable={isConnectable} />
       <div>
-        <label htmlFor="text">IF: </label>
+        <label htmlFor="text">Assert Equal: </label>
         {/* <input className="w-full border border-[#565656] rounded-md px-3 py-2 mb-2 bg-[#2d2d2d] nodrag" id="text" name="text" onChange={onChange} defaultValue={data.label} /> */}
       </div>
       <select

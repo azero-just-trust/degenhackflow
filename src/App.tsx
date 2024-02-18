@@ -21,6 +21,7 @@ import {generateCodeFile} from "./utils.ts"
 import "reactflow/dist/style.css";
 import TextUpdaterNode from './components/textUpdaterNode.tsx';
 import IfStatement from "./components/ifStatement.tsx";
+import GlobalStateNode from "./components/globalStateNode.tsx";
 
 const selectOptions = [
   { value: "new_function", label: "new function" },
@@ -30,32 +31,32 @@ const selectOptions = [
 ];
 
 const initNodes = [
-  {
-    id: "a",
-    data: { label: "Node A" },
-    position: { x: 250, y: 0 },
-  },
-  {
-    id: "b",
-    data: { label: "Node B" },
-    position: { x: 100, y: 100 },
-  },
-  {
-    id: "c",
-    data: { label: "Node" },
-    position: { x: 350, y: 100 },
-  },
+  // {
+  //   id: "a",
+  //   data: { label: "Example Node" },
+  //   position: { x: 250, y: 0 },
+  // },
+  // {
+  //   id: "b",
+  //   data: { label: "Node B" },
+  //   position: { x: 100, y: 100 },
+  // },
+  // {
+  //   id: "c",
+  //   data: { label: "Node" },
+  //   position: { x: 350, y: 100 },
+  // },
 ];
 
 const initEdges = [
-  {
-    id: "a-b",
-    source: "a",
-    target: "b",
-  },
+  // {
+  //   id: "a-b",
+  //   source: "a",
+  //   target: "b",
+  // },
 ];
 
-const nodeTypes = { textUpdater: TextUpdaterNode, ifStatement: IfStatement };
+const nodeTypes = { textUpdater: TextUpdaterNode, ifStatement: IfStatement, globalStateNode: GlobalStateNode };
 
 // Ink Smart Contract Function struct
 interface Function {
@@ -290,6 +291,7 @@ e2e-tests = []
   );
 
   const updatePosition = async () => {
+    if (functions.length == 0) return;
     let updatedFunctions = functions;
     updatedFunctions[selectedFunction].nodes = nodes;
     setFunctions([...updatedFunctions]);
@@ -356,8 +358,8 @@ e2e-tests = []
               await updatePosition();
               const newNode = { 
                 id: `${functions.length.toString()}-${functions[selectedFunction].nodes.length.toString()}`,
-                type: `textUpdater`,
-                data: { label: ``, variable_type: `` },
+                type: `globalStateNode`,
+                data: { label: ``, variable_type: ``, global: variables, },
                 position: { x: 150, y: 100 },
               };
               setNodes([...functions[selectedFunction].nodes, newNode]);

@@ -118,6 +118,9 @@ export const generateCodeFile = (variables, functions) => {
       code += `) {\n`;
       // Close the function body
       code += `            // Function body goes here\n`;
+      func.nodes.forEach((param) => {
+        if (param.type == "ifStatement") code += `assert_eq!(self.owner self.env().caller());`;
+    });
       code += `        }\n`;
   });
 
